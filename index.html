@@ -33,7 +33,7 @@
     <div id="timer" style="display:none;"></div>
     <div id="distraction" class="distraction"></div>
     <div id="result-container" class="result" style="display:none;"></div>
-    <button onclick="location.reload()" id="restart-button" style="display:none;">Спробувати знову</button>
+    <button onclick="location.reload()" id="retry-button" style="display:none;">Спробувати знову</button>
 
     <script>
         let currentQuestion = 0;
@@ -48,12 +48,13 @@
             for (let i = 0; i < totalQuestions; i++) {
                 let num1 = Math.floor(Math.random() * 90) + 10;
                 let num2 = Math.floor(Math.random() * 90) + 10;
-                let isSubtraction = Math.random() < 0.5;
-                if (isSubtraction && num1 > num2) {
-                    questions.push({ num1, num2, answer: num1 - num2, operator: '-' });
-                } else {
-                    questions.push({ num1, num2, answer: num1 + num2, operator: '+' });
+                let isAddition = Math.random() < 0.66;
+                let answer = isAddition ? num1 + num2 : num1 - num2;
+                if (!isAddition && answer < 0) {
+                    [num1, num2] = [num2, num1];
+                    answer = num1 - num2;
                 }
+                questions.push({ num1, num2, answer, isAddition });
             }
         }
 
@@ -72,7 +73,8 @@
 
         function showQuestion() {
             const question = questions[currentQuestion];
-            document.getElementById('question-container').innerText = `Скільки буде ${question.num1} ${question.operator} ${question.num2}?`;
+            const operator = question.isAddition ? '+' : '-';
+            document.getElementById('question-container').innerText = `Скільки буде ${question.num1} ${operator} ${question.num2}?`;
         }
 
         function updateTimer() {
@@ -103,12 +105,12 @@
             const score = Math.round((correctAnswers / totalQuestions) * 10);
             resultContainer.innerText = `Ваш бал: ${score} з 10`;
             resultContainer.style.display = 'block';
-            document.getElementById('restart-button').style.display = 'inline';
+            document.getElementById('retry-button').style.display = 'block';
         }
 
         setInterval(() => {
             if (Math.random() < 0.3) {
-                document.getElementById('distraction').innerText = 'Підказка до відповіді! Поки Ви читаєте цей текст, ваш час йде ;)';
+                document.getElementById('distraction').innerText = 'Підказка до відповіді!\nПоки Ви читаєте цей текст, ваш час йде ;)';
                 setTimeout(() => {
                     document.getElementById('distraction').innerText = '';
                 }, 6000);
