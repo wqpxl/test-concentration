@@ -136,7 +136,7 @@
     let totalTimeSpent = Math.round((Date.now() - globalStartTime) / 1000); // Загальний час тесту
     let timePenalty = 0;
     questionTimes.forEach(time => {
-        if (time > 13) {
+        if (time > 10) {
             timePenalty++;
         }
     });
