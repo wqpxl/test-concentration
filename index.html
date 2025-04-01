@@ -42,6 +42,7 @@
         let startTime;
         let timerInterval;
         let questions = [];
+        let questionTimes = []; // масив для збереження часу на кожне питання
 
         function generateQuestions() {
             questions = [];
@@ -85,6 +86,11 @@
         function submitAnswer() {
             const userAnswer = parseInt(document.getElementById('answer').value);
             const correctAnswer = questions[currentQuestion].answer;
+            
+            // Зберігаємо час для поточного питання
+            const timeSpent = Math.round((Date.now() - startTime) / 1000); // Витрачений час у секундах
+            questionTimes.push(timeSpent);
+
             if (userAnswer === correctAnswer) {
                 correctAnswers++;
             }
@@ -98,11 +104,26 @@
             }
 
             document.getElementById('answer').value = '';
+            startTime = Date.now(); // Перезапуск часу для наступного запитання
         }
 
         function showResults() {
             const resultContainer = document.getElementById('result-container');
-            const score = Math.round((correctAnswers / totalQuestions) * 10);
+            
+            // Обчислюємо загальний час
+            const totalTime = questionTimes.reduce((total, time) => total + time, 0);
+            
+            // Визначимо штраф за час. Якщо час більше ніж 30 секунд на питання, то знижуємо бал.
+            let timePenalty = 0;
+            questionTimes.forEach(time => {
+                if (time > 12) {  // Якщо витрачено більше 30 секунд на питання
+                    timePenalty++;
+                }
+            });
+
+            // Оцінка на основі правильних відповідей та штрафу за час
+            const score = Math.round((correctAnswers / totalQuestions) * 10) - timePenalty;
+            
             resultContainer.innerText = `Ваш бал: ${score} з 10`;
             resultContainer.style.display = 'block';
             document.getElementById('retry-button').style.display = 'block';
