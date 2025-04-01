@@ -20,6 +20,12 @@
         .distraction {
             color: red;
             font-size: 2.5em;
+            display: none; /* Спочатку приховано */
+        }
+        #retry-button {
+            margin-top: 20px;
+            display: none;
+            text-align: center;
         }
     </style>
 </head>
@@ -33,7 +39,7 @@
     <div id="timer" style="display:none;"></div>
     <div id="distraction" class="distraction"></div>
     <div id="result-container" class="result" style="display:none;"></div>
-    <button onclick="location.reload()" id="retry-button" style="display:none;">Спробувати знову</button>
+    <button onclick="location.reload()" id="retry-button">Спробувати знову</button>
 
     <script>
         let currentQuestion = 0;
@@ -65,6 +71,7 @@
             document.getElementById('answer').style.display = 'inline';
             document.getElementById('submit-button').style.display = 'inline';
             document.getElementById('timer').style.display = 'block';
+            document.getElementById('distraction').style.display = 'block'; // Показати червоний текст тільки під час тесту
             
             generateQuestions();
             showQuestion();
@@ -116,7 +123,7 @@
             // Визначимо штраф за час. Якщо час більше ніж 30 секунд на питання, то знижуємо бал.
             let timePenalty = 0;
             questionTimes.forEach(time => {
-                if (time > 12) {  // Якщо витрачено більше 30 секунд на питання
+                if (time > 30) {  // Якщо витрачено більше 30 секунд на питання
                     timePenalty++;
                 }
             });
@@ -126,7 +133,8 @@
             
             resultContainer.innerText = `Ваш бал: ${score} з 10`;
             resultContainer.style.display = 'block';
-            document.getElementById('retry-button').style.display = 'block';
+            document.getElementById('retry-button').style.display = 'block'; // Показати кнопку спробувати знову
+            document.getElementById('distraction').style.display = 'none'; // Приховати червоний текст на результатах
         }
 
         setInterval(() => {
