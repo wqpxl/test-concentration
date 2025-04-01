@@ -19,7 +19,7 @@
         }
         .distraction {
             color: red;
-            font-size: 3em;
+            font-size: 2.5em;
         }
     </style>
 </head>
@@ -33,6 +33,7 @@
     <div id="timer" style="display:none;"></div>
     <div id="distraction" class="distraction"></div>
     <div id="result-container" class="result" style="display:none;"></div>
+    <button onclick="location.reload()" id="restart-button" style="display:none;">Спробувати знову</button>
 
     <script>
         let currentQuestion = 0;
@@ -47,7 +48,12 @@
             for (let i = 0; i < totalQuestions; i++) {
                 let num1 = Math.floor(Math.random() * 90) + 10;
                 let num2 = Math.floor(Math.random() * 90) + 10;
-                questions.push({ num1, num2, answer: num1 + num2 });
+                let isSubtraction = Math.random() < 0.5;
+                if (isSubtraction && num1 > num2) {
+                    questions.push({ num1, num2, answer: num1 - num2, operator: '-' });
+                } else {
+                    questions.push({ num1, num2, answer: num1 + num2, operator: '+' });
+                }
             }
         }
 
@@ -66,7 +72,7 @@
 
         function showQuestion() {
             const question = questions[currentQuestion];
-            document.getElementById('question-container').innerText = `Скільки буде ${question.num1} + ${question.num2}?`;
+            document.getElementById('question-container').innerText = `Скільки буде ${question.num1} ${question.operator} ${question.num2}?`;
         }
 
         function updateTimer() {
@@ -97,13 +103,15 @@
             const score = Math.round((correctAnswers / totalQuestions) * 10);
             resultContainer.innerText = `Ваш бал: ${score} з 10`;
             resultContainer.style.display = 'block';
+            document.getElementById('restart-button').style.display = 'inline';
         }
 
         setInterval(() => {
             if (Math.random() < 0.3) {
                 document.getElementById('distraction').innerText = 'Підказка до відповіді! Поки Ви читаєте цей текст, ваш час йде ;)';
-            } else {
-                document.getElementById('distraction').innerText = '';
+                setTimeout(() => {
+                    document.getElementById('distraction').innerText = '';
+                }, 6000);
             }
         }, 3000);
     </script>
