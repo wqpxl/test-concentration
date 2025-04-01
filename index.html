@@ -34,6 +34,10 @@
         #result-container {
             display: none;
         }
+		#final-time {
+			font-size: 0.8em; /* або 0.8em якщо треба ще менше */
+			color: gray; /* Можна зробити менш помітним */
+		}
     </style>
 </head>
 <body>
@@ -59,6 +63,7 @@
         let timerInterval;
         let questions = [];
         let questionTimes = [];
+		let globalStartTime;
 
         function generateQuestions() {
             questions = [];
@@ -76,18 +81,20 @@
         }
 
         function startTest() {
-            document.querySelector('button').style.display = 'none';
-            document.getElementById('question-container').style.display = 'block';
-            document.getElementById('answer').style.display = 'inline';
-            document.getElementById('submit-button').style.display = 'inline';
-            document.getElementById('timer').style.display = 'block';
-            document.getElementById('distraction').style.display = 'block';
-            
-            generateQuestions();
-            showQuestion();
-            startTime = Date.now();
-            timerInterval = setInterval(updateTimer, 100);
-        }
+    globalStartTime = Date.now(); // Починаємо рахувати загальний час тесту
+    document.querySelector('button').style.display = 'none';
+    document.getElementById('question-container').style.display = 'block';
+    document.getElementById('answer').style.display = 'inline';
+    document.getElementById('submit-button').style.display = 'inline';
+    document.getElementById('timer').style.display = 'block';
+    document.getElementById('distraction').style.display = 'block';
+
+    generateQuestions();
+    showQuestion();
+    startTime = Date.now();
+    timerInterval = setInterval(updateTimer, 100);
+}
+
 
         function showQuestion() {
             const question = questions[currentQuestion];
@@ -123,23 +130,31 @@
         }
 
         function showResults() {
-            const resultContainer = document.getElementById('result-container');
-            
-            const totalTimeSpent = questionTimes.reduce((total, time) => total + time, 0);
-            let timePenalty = 0;
-            questionTimes.forEach(time => {
-                if (time > 13) {
-                    timePenalty++;
-                }
-            });
-
-            const score = Math.max(Math.round((correctAnswers / totalQuestions) * 10) - timePenalty, 0);
-            
-            resultContainer.innerText = `Ваш бал: ${score} з 10`;
-            resultContainer.style.display = 'block';
-            document.getElementById('retry-button-container').style.display = 'flex'; // Центруємо кнопку спробувати знову
-            document.getElementById('distraction').style.display = 'none'; // Приховуємо червоний текст
+    const resultContainer = document.getElementById('result-container');
+    clearInterval(timerInterval);
+    
+    let totalTimeSpent = Math.round((Date.now() - globalStartTime) / 1000); // Загальний час тесту
+    let timePenalty = 0;
+    questionTimes.forEach(time => {
+        if (time > 13) {
+            timePenalty++;
         }
+    });
+
+    const score = Math.max(Math.round((correctAnswers / totalQuestions) * 10) - timePenalty, 0);
+    resultContainer.innerHTML = `<p>Ваш бал: ${score} з 10</p>
+                     <p id="final-time">Загальний час: ${totalTimeSpent} сек</p>`;
+
+    resultContainer.style.display = 'block';
+    document.getElementById('retry-button-container').style.display = 'flex';
+    document.getElementById('distraction').style.display = 'none';
+    document.getElementById('submit-button').style.display = 'none';
+    document.getElementById('answer').style.display = 'none';
+    document.getElementById('question-container').style.display = 'none';
+    document.getElementById('timer').style.display = 'none';
+    document.querySelector('p').style.display = 'none';
+}
+
 
         setInterval(() => {
             if (Math.random() < 0.3) {
