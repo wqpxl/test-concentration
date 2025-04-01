@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест на концентрацію</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        .question {
+            font-size: 1.5em;
+        }
+        .result {
+            font-size: 2em;
+            font-weight: bold;
+        }
+        .distraction {
+            color: red;
+            font-size: 3em;
+        }
+    </style>
+</head>
+<body>
+    <h1>Тест на концентрацію</h1>
+    <p>Приготуйся рахувати і вводити відповідь!</p>
+    <button onclick="startTest()">Почати тест</button>
+    <div id="question-container" class="question" style="display:none;"></div>
+    <input type="number" id="answer" placeholder="Ваша відповідь" style="display:none;">
+    <button onclick="submitAnswer()" style="display:none;" id="submit-button">Відправити відповідь</button>
+    <div id="timer" style="display:none;"></div>
+    <div id="distraction" class="distraction"></div>
+    <div id="result-container" class="result" style="display:none;"></div>
+
+    <script>
+        let currentQuestion = 0;
+        let correctAnswers = 0;
+        let totalQuestions = 10;
+        let startTime;
+        let timerInterval;
+        let questions = [];
+
+        function generateQuestions() {
+            questions = [];
+            for (let i = 0; i < totalQuestions; i++) {
+                let num1 = Math.floor(Math.random() * 90) + 10;
+                let num2 = Math.floor(Math.random() * 90) + 10;
+                questions.push({ num1, num2, answer: num1 + num2 });
+            }
+        }
+
+        function startTest() {
+            document.querySelector('button').style.display = 'none';
+            document.getElementById('question-container').style.display = 'block';
+            document.getElementById('answer').style.display = 'inline';
+            document.getElementById('submit-button').style.display = 'inline';
+            document.getElementById('timer').style.display = 'block';
+            
+            generateQuestions();
+            showQuestion();
+            startTime = Date.now();
+            timerInterval = setInterval(updateTimer, 100);
+        }
+
+        function showQuestion() {
+            const question = questions[currentQuestion];
+            document.getElementById('question-container').innerText = `Скільки буде ${question.num1} + ${question.num2}?`;
+        }
+
+        function updateTimer() {
+            const elapsed = Math.round((Date.now() - startTime) / 1000);
+            document.getElementById('timer').innerText = `Час: ${elapsed} сек`;
+        }
+
+        function submitAnswer() {
+            const userAnswer = parseInt(document.getElementById('answer').value);
+            const correctAnswer = questions[currentQuestion].answer;
+            if (userAnswer === correctAnswer) {
+                correctAnswers++;
+            }
+
+            currentQuestion++;
+            if (currentQuestion < totalQuestions) {
+                showQuestion();
+            } else {
+                clearInterval(timerInterval);
+                showResults();
+            }
+
+            document.getElementById('answer').value = '';
+        }
+
+        function showResults() {
+            const resultContainer = document.getElementById('result-container');
+            const score = Math.round((correctAnswers / totalQuestions) * 10);
+            resultContainer.innerText = `Ваш бал: ${score} з 10`;
+            resultContainer.style.display = 'block';
+        }
+
+        setInterval(() => {
+            if (Math.random() < 0.3) {
+                document.getElementById('distraction').innerText = 'Підказка до відповіді! Поки Ви читаєте цей текст, ваш час йде ;)';
+            } else {
+                document.getElementById('distraction').innerText = '';
+            }
+        }, 3000);
+    </script>
+</body>
+</html>
