@@ -27,6 +27,10 @@
             display: none;
             text-align: center;
         }
+        #retry-button-container {
+            display: flex;
+            justify-content: center;
+        }
     </style>
 </head>
 <body>
@@ -39,13 +43,16 @@
     <div id="timer" style="display:none;"></div>
     <div id="distraction" class="distraction"></div>
     <div id="result-container" class="result" style="display:none;"></div>
-    <button onclick="location.reload()" id="retry-button">Спробувати знову</button>
+    <div id="retry-button-container">
+        <button onclick="location.reload()" id="retry-button">Спробувати знову</button>
+    </div>
 
     <script>
         let currentQuestion = 0;
         let correctAnswers = 0;
         let totalQuestions = 10;
         let startTime;
+        let totalTime = 0; // Змінна для збереження загального часу
         let timerInterval;
         let questions = [];
         let questionTimes = []; // масив для збереження часу на кожне питання
@@ -86,8 +93,8 @@
         }
 
         function updateTimer() {
-            const elapsed = Math.round((Date.now() - startTime) / 1000);
-            document.getElementById('timer').innerText = `Час: ${elapsed} сек`;
+            totalTime = Math.round((Date.now() - startTime) / 1000); // Визначаємо загальний час
+            document.getElementById('timer').innerText = `Час: ${totalTime} сек`; // Відображаємо загальний час
         }
 
         function submitAnswer() {
@@ -95,7 +102,7 @@
             const correctAnswer = questions[currentQuestion].answer;
             
             // Зберігаємо час для поточного питання
-            const timeSpent = Math.round((Date.now() - startTime) / 1000); // Витрачений час у секундах
+            const timeSpent = Math.round((Date.now() - startTime) / 1000); // Витрачений час на поточне питання
             questionTimes.push(timeSpent);
 
             if (userAnswer === correctAnswer) {
@@ -118,7 +125,7 @@
             const resultContainer = document.getElementById('result-container');
             
             // Обчислюємо загальний час
-            const totalTime = questionTimes.reduce((total, time) => total + time, 0);
+            const totalTimeSpent = questionTimes.reduce((total, time) => total + time, 0);
             
             // Визначимо штраф за час. Якщо час більше ніж 30 секунд на питання, то знижуємо бал.
             let timePenalty = 0;
@@ -129,7 +136,7 @@
             });
 
             // Оцінка на основі правильних відповідей та штрафу за час
-            const score = Math.round((correctAnswers / totalQuestions) * 10) - timePenalty;
+            const score = Math.max(Math.round((correctAnswers / totalQuestions) * 10) - timePenalty, 0); // Якщо бал менший за 0, ставимо 0
             
             resultContainer.innerText = `Ваш бал: ${score} з 10`;
             resultContainer.style.display = 'block';
